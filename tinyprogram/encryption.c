@@ -90,7 +90,7 @@ int encryption(char* path, char* key)
 		exit(-1);   
 	}
 
-	while ((rnum = fread(str, 1, CH_NUM-1, fp_src)) != 0) {
+	while ((rnum = fread(str, 1, CH_NUM-1, fp_src)) > 0) {
 		addhex(str, rnum, key);   
 		wnum = fwrite(str, 1, rnum, fp_dst);
 		if (wnum != rnum) {
@@ -147,7 +147,7 @@ int dencryption(char* path, char* key, char type)
 	system(cmdline);
 	return 0;
 onlyshow:
-	while ((rnum = fread(str, 1, CH_NUM-1, fp_src)) != 0) {
+	while ((rnum = fread(str, 1, CH_NUM-1, fp_src)) > 0) {
 		subhex(str, rnum, key);   
 		str[rnum] = 0;
 		printf("%s", str);   

@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <signal.h>
 #define TRUE 1
-#define FALSE 0;
+#define FALSE 0
 pthread_t ntid[1024];
 pthread_mutex_t mcursor[102];
 int tidnum = 0;
@@ -95,6 +95,7 @@ void* printchar(void *arg)
 void stopthread(int signo)
 {
 	int i;
+	signal(SIGINT, SIG_IGN);
 	loopflag = FALSE;
 	for (i = 0;i < 10;i ++) {
 		clearcursor();
@@ -121,7 +122,7 @@ int main()
 			if (k%2 == 0) {
 				mutexnum++;
 				if (pthread_mutex_init(&mcursor[mutexnum], NULL) != 0) {
-					perror("pthread_mutex_init:");
+					printf("pthread_mutex_init error");
 					exit(EXIT_FAILURE);
 				}
 			}
@@ -129,10 +130,11 @@ int main()
 			parg.xsize = size.ws_row;
 			parg.mutex = mutexnum;
 			if (pthread_create(&ntid[tidnum], NULL, printchar, &parg) != 0) {
-				perror("pthread_create:");
+				printf("pthread_create error");
 				exit(EXIT_FAILURE);
 			}
-			sleep(0.5);
+			/*sleep or handle parg*/
+			sleep(1);
 			tidnum++;
 			k++;
 	}
