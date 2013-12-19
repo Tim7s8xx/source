@@ -82,6 +82,7 @@ void* printchar(void *arg)
 	struct pthread_arg* p = (struct pthread_arg*)arg;
 	int i, row = p->xsize, ypos = p->ypos, mutex = p->mutex;
 	while(loopflag) {
+		/*give the mutex to the other thread*/
 		sleep(1);
 		pthread_mutex_lock(&mcursor[mutex]);
 		for (i = 1;i <= row;i ++) {
@@ -140,7 +141,7 @@ int main()
 	}
 	signal(SIGINT, stopthread);
 	pause();
-	for (k = 0; k < mutexnum; k++) {
+	for (k = 0; k <= mutexnum; k++) {
 			pthread_mutex_destroy(&mcursor[k]);
 	}
 
