@@ -10,7 +10,6 @@
 #define FALSE 0
 pthread_t ntid[1024];
 pthread_mutex_t mcursor[102];
-pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
 int tidnum = 0;
 int mutexnum = -1;
 int loopflag = TRUE;
@@ -71,7 +70,7 @@ void showcursor()
 char randchar(int n)
 {
 	int a;
-//	srand(n+time(NULL));
+	srand(n+time(NULL));
 	a = rand();
 	a = a % 127;
 	if (a < 33)
@@ -87,10 +86,8 @@ void* printchar(void *arg)
 		sleep(1);
 		pthread_mutex_lock(&mcursor[mutex]);
 		for (i = 1;i <= row;i ++) {
-			pthread_mutex_lock(&print_mutex);
 			setposition(i, ypos);
 			printf("%c", randchar(i*ypos));
-			pthread_mutex_unlock(&print_mutex);
 			usleep(50000);
 		}
 		pthread_mutex_unlock(&mcursor[mutex]);
@@ -121,15 +118,13 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	setbuf(stdout, NULL);
-	srand(time(NULL));
 	clearcursor();
-	for (j = 1;j <= size.ws_col;j = j + 3) {
+	for (j = 1;j <= size.ws_col;j = j + 8) {
 			if (k%2 == 0) {
 				mutexnum++;
 				if (pthread_mutex_init(&mcursor[mutexnum], NULL) != 0) {
 					printf("pthread_mutex_init error");
-					mutexnum--;
-					goto _EXIT_;
+					exit(EXIT_FAILURE);
 				}
 			}
 			parg.ypos = j;
@@ -137,7 +132,7 @@ int main()
 			parg.mutex = mutexnum;
 			if (pthread_create(&ntid[tidnum], NULL, printchar, &parg) != 0) {
 				printf("pthread_create error");
-				goto _EXIT_;
+				exit(EXIT_FAILURE);
 			}
 			/*sleep or handle parg*/
 			sleep(1);
@@ -146,9 +141,8 @@ int main()
 	}
 	signal(SIGINT, stopthread);
 	pause();
-_EXIT_:
 	for (k = 0; k <= mutexnum; k++) {
 			pthread_mutex_destroy(&mcursor[k]);
 	}
-	exit(0);
+
 }
